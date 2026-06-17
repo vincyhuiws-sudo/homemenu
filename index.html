@@ -7,8 +7,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
-        .card { transition: all 0.3s; }
-        .active-card { background-color: #fffaf7 !important; border-color: #dcb8a0 !important; border-width: 2px; }
+        .card { transition: all 0.2s; }
+        /* 這是你要求的 Highlight 顏色 (與 WhatsApp 按鈕同色系) */
+        .active-card { background-color: #fb923c !important; color: white !important; border-color: #ea580c !important; }
     </style>
 </head>
 <body class="pb-28">
@@ -20,14 +21,14 @@
     <div class="max-w-lg mx-auto px-4">
         <input type="date" id="date" class="w-full p-4 mb-6 rounded-2xl border-none shadow-sm bg-white text-gray-700">
 
-    <div class="flex gap-2 mb-6 overflow-x-auto pb-2 flex-wrap">
-        <button onclick="showSecondLayer('雞🐥')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">雞🐥</button>
-        <button onclick="showSecondLayer('牛🐮')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">牛🐮</button>
-        <button onclick="showSecondLayer('豬🐷')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">豬🐷</button>
-        <button onclick="showSecondLayer('海鮮🦞')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">海鮮🦞</button>
-        <button onclick="showSecondLayer('國家⛳')" class="px-5 py-2 bg-white rounded-full border shadow-sm text-orange-800 font-bold">國家⛳</button>
-        <button onclick="showSecondLayer('叫外賣🚲')" class="px-5 py-2 bg-white rounded-full border shadow-sm text-orange-800 font-bold">叫外賣🚲</button>
-    </div>
+        <div class="flex flex-wrap gap-2 mb-6 pb-2">
+            <button onclick="showSecondLayer('雞🐥')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">雞🐥</button>
+            <button onclick="showSecondLayer('牛🐮')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">牛🐮</button>
+            <button onclick="showSecondLayer('豬🐷')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">豬🐷</button>
+            <button onclick="showSecondLayer('海鮮🦞')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">海鮮🦞</button>
+            <button onclick="showSecondLayer('國家⛳')" class="px-5 py-2 bg-white rounded-full border shadow-sm text-orange-800 font-bold">國家⛳</button>
+            <button onclick="showSecondLayer('叫外賣🚲')" class="px-5 py-2 bg-white rounded-full border shadow-sm text-orange-800 font-bold">叫外賣🚲</button>
+        </div>
 
         <div id="secondLayer" class="grid grid-cols-2 gap-3"></div>
     </div>
@@ -43,8 +44,8 @@
             '牛🐮': ['炒牛肉', '牛扒'],
             '豬🐷': ['黑毛豬', '咕嚕肉'],
             '海鮮🦞': ['焗三文魚', '清蒸魚'],
-            '國家⛳': ['日本🇯🇵', '韓國🇰🇷','泰國🇹🇭','意大利🇮🇹', '西班牙🇪🇸','挪威🇳🇴'],
-            '叫外賣🚲': ['🍣', '🍕','海南雞🐥','手撕雞🐥', '韓國菜',]
+            '國家⛳': ['日本🇯🇵', '韓國🇰🇷', '泰國🇹🇭', '意大利🇮🇹', '西班牙🇪🇸', '挪威🇳🇴'],
+            '叫外賣🚲': ['🍣', '🍕', '海南雞🐥', '手撕雞🐥', '韓國菜']
         };
 
         let selectedDishes = [];
@@ -65,9 +66,11 @@
         function toggleDish(item, el) {
             const index = selectedDishes.indexOf(item);
             if (index > -1) {
+                // 如果已經選了，點一下就取消（從購物車移除）
                 selectedDishes.splice(index, 1);
                 el.classList.remove('active-card');
             } else {
+                // 如果沒選，點一下就加入購物車
                 selectedDishes.push(item);
                 el.classList.add('active-card');
             }
@@ -76,9 +79,8 @@
 
         function submitOrder() {
             const date = document.getElementById('date').value;
-            if(!date || selectedDishes.length === 0) return alert("請揀日子同菜式！");
+            if(!date || selectedDishes.length === 0) return alert("請先選日期同菜式！");
             
-            // 請替換你的真實電話 (格式: 852XXXXXXXX)
             const phone = "852你的電話"; 
             const msg = `🏠 今晚晚餐 (${date}):\n${selectedDishes.join('\n')}`;
             window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
