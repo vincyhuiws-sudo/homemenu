@@ -2,77 +2,91 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>晚餐預訂系統</title>
+    <title>🏠 我們的溫馨晚餐</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
+        body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
+        .card { transition: transform 0.2s; border: 1px solid #f0e6dd; }
+        .card:hover { transform: translateY(-2px); border-color: #dcb8a0; }
+    </style>
 </head>
-<body class="bg-gray-100 p-4">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">晚餐預訂系統 🍽️</h1>
+<body class="pb-24">
 
-        <label class="block mb-2 font-semibold">選擇日期：</label>
-        <input type="date" id="date" class="w-full border p-2 rounded mb-4">
+    <!-- Header -->
+    <header class="text-center py-8">
+        <h1 class="text-3xl text-orange-900 font-bold">🏠 今晚吃什麼？</h1>
+        <p class="text-gray-500 mt-2">為親愛的準備的晚餐</p>
+    </header>
 
-        <label class="block mb-2 font-semibold">選擇分類：</label>
-        <select id="filterType" onchange="updateMenu()" class="w-full border p-2 rounded mb-4">
-            <option value="all">顯示全部</option>
-            <option value="雞">雞肉類</option>
-            <option value="牛">牛肉類</option>
-            <option value="豬">豬肉類</option>
-            <option value="泰">泰式</option>
-            <option value="日">日式</option>
-        </select>
+    <div class="max-w-lg mx-auto px-4">
+        <!-- 日期 -->
+        <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-6 bg-white text-gray-700">
 
-        <div id="menuContainer" class="space-y-2 mb-6">
-            </div>
+        <!-- 分類標籤 -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="filterMenu('all')" class="bg-orange-200 px-4 py-1 rounded-full text-sm">全部</button>
+            <button onclick="filterMenu('雞')" class="bg-white border px-4 py-1 rounded-full text-sm">雞肉</button>
+            <button onclick="filterMenu('豬')" class="bg-white border px-4 py-1 rounded-full text-sm">豬肉</button>
+            <button onclick="filterMenu('魚')" class="bg-white border px-4 py-1 rounded-full text-sm">海鮮</button>
+        </div>
 
-        <button onclick="submitOrder()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
-            提交預訂至 WhatsApp
-        </button>
+        <!-- 菜單列表 -->
+        <div id="menuList" class="space-y-4"></div>
+    </div>
+
+    <!-- 底部購物車欄 (Fixed) -->
+    <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex justify-between items-center z-50">
+        <div id="cartCount" class="text-gray-600">已選 0 道菜</div>
+        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg">確認預訂</button>
     </div>
 
     <script>
-        // 菜單資料庫
         const dishes = [
-            { name: "冬瓜炆排骨", type: "豬", country: "中" },
-            { name: "老少平安", type: "豬", country: "中" },
-            { name: "焗三文魚", type: "魚", country: "西" },
-            { name: "烔多春魚", type: "魚", country: "日" },
-            { name: "大蝦意粉", type: "海鮮", country: "西" },
-            { name: "泰式咖喱雞", type: "雞", country: "泰" }
+            { name: "冬瓜炆排骨", type: "豬", icon: "🥘" },
+            { name: "老少平安", type: "豬", icon: "🥣" },
+            { name: "焗三文魚", type: "魚", icon: "🐟" },
+            { name: "泰式咖喱雞", type: "雞", icon: "🍗" }
         ];
 
-        function updateMenu() {
-            const filter = document.getElementById('filterType').value;
-            const container = document.getElementById('menuContainer');
-            container.innerHTML = '';
+        let selectedDishes = [];
 
-            const filtered = (filter === 'all') ? dishes : dishes.filter(d => d.type === filter || d.country === filter);
-
-            filtered.forEach(dish => {
-                container.innerHTML += `
-                    <label class="flex items-center space-x-3 p-2 border rounded hover:bg-gray-50">
-                        <input type="checkbox" name="dish" value="${dish.name}" class="w-5 h-5">
-                        <span>${dish.name}</span>
-                    </label>
+        function renderMenu(filter = 'all') {
+            const list = document.getElementById('menuList');
+            list.innerHTML = '';
+            const filtered = filter === 'all' ? dishes : dishes.filter(d => d.type === filter);
+            
+            filtered.forEach(d => {
+                list.innerHTML += `
+                    <div class="card bg-white p-4 rounded-2xl flex items-center justify-between" onclick="toggleDish('${d.name}')">
+                        <div class="flex items-center gap-4">
+                            <span class="text-2xl">${d.icon}</span>
+                            <span class="text-lg">${d.name}</span>
+                        </div>
+                        <input type="checkbox" id="check-${d.name}" class="w-5 h-5 accent-orange-400">
+                    </div>
                 `;
             });
         }
 
-        function submitOrder() {
-            const date = document.getElementById('date').value;
-            const selected = Array.from(document.querySelectorAll('input[name="dish"]:checked')).map(cb => cb.value);
+        function toggleDish(name) {
+            const index = selectedDishes.indexOf(name);
+            if (index > -1) selectedDishes.splice(index, 1);
+            else selectedDishes.push(name);
             
-            if (!date) return alert("請先選擇日期！");
-            if (selected.length === 0) return alert("請至少選擇一個菜式！");
-
-            const msg = `小寶仔我想預訂 ${date} 的晚餐，菜單如下：\n${selected.join('\n')}`;
-            const phone = "85263378993; // 請替換成你的真實號碼
-            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            document.getElementById(`check-${name}`).checked = index === -1;
+            document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道菜`;
         }
 
-        // 初始化顯示
-        updateMenu();
+        function submitOrder() {
+            const date = document.getElementById('date').value;
+            if(!date || selectedDishes.length === 0) return alert("請揀日子同菜式");
+            const msg = `🏠 親愛的，我訂了 ${date} 的晚餐：\n${selectedDishes.join('\n')}`;
+            window.location.href = `https://wa.me/85263378993?text=${encodeURIComponent(msg)}`;
+        }
+
+        filterMenu = renderMenu;
+        renderMenu();
     </script>
 </body>
 </html>
