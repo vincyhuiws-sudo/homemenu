@@ -8,65 +8,55 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
         .card { transition: all 0.3s; border: 1px solid #efe8e1; }
-        .active-card { border-color: #dcb8a0; background-color: #fffaf7; }
+        .active-card { border-color: #dcb8a0; background-color: #fffaf7; border-width: 2px; }
     </style>
 </head>
 <body class="pb-28">
 
     <header class="text-center py-6">
-        <h1 class="text-2xl text-orange-900 font-bold">🏠 今晚想吃什麼？</h1>
+        <h1 class="text-2xl text-orange-900 font-bold">🏠 今晚吃什麼？</h1>
     </header>
 
     <div class="max-w-lg mx-auto px-4">
-        <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-4 bg-white text-gray-700">
+        <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-6 bg-white text-gray-700">
 
-        <div class="flex gap-2 mb-6">
-            <button onclick="setFilterMode('type')" id="btn-type" class="flex-1 py-2 rounded-xl bg-orange-200 text-sm font-bold">按種類</button>
-            <button onclick="setFilterMode('country')" id="btn-country" class="flex-1 py-2 rounded-xl bg-white border text-sm">按國家</button>
+        <div id="filterTags" class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="renderMenu('全部')" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold">全部</button>
+            <button onclick="renderMenu('雞')" class="bg-white border px-4 py-2 rounded-full text-sm">雞肉</button>
+            <button onclick="renderMenu('豬')" class="bg-white border px-4 py-2 rounded-full text-sm">豬肉</button>
+            <button onclick="renderMenu('泰')" class="bg-white border px-4 py-2 rounded-full text-sm">泰式</button>
+            <button onclick="renderMenu('韓')" class="bg-white border px-4 py-2 rounded-full text-sm">韓式</button>
+            <button onclick="renderMenu('西')" class="bg-white border px-4 py-2 rounded-full text-sm">西式</button>
+            <button onclick="renderMenu('日')" class="bg-white border px-4 py-2 rounded-full text-sm">日式</button>
         </div>
-
-        <div id="filterTags" class="flex gap-2 mb-6 overflow-x-auto pb-2"></div>
 
         <div id="menuList" class="space-y-3"></div>
     </div>
 
     <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex justify-between items-center z-50">
         <div id="cartCount" class="text-gray-700 font-bold">已選 0 道菜</div>
-        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-orange-500">傳送 WhatsApp</button>
+        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg">傳送 WhatsApp</button>
     </div>
 
     <script>
         const dishes = [
             { name: "冬瓜炆排骨", type: "豬", country: "中", icon: "🥘" },
             { name: "老少平安", type: "豬", country: "中", icon: "🥣" },
-            { name: "焗三文魚", type: "魚", country: "西", icon: "🐟" },
             { name: "泰式咖喱雞", type: "雞", country: "泰", icon: "🍛" },
-            { name: "日式炸多春魚", type: "魚", country: "日", icon: "🐟" },
-            { name: "韓式泡菜炒豚肉", type: "豬", country: "韓", icon: "🥓" },
-            { name: "大蝦意粉", type: "魚", country: "西", icon: "🍝" }
+            { name: "韓式泡菜炒肉", type: "豬", country: "韓", icon: "🥓" },
+            { name: "焗三文魚", type: "魚", country: "西", icon: "🐟" },
+            { name: "大蝦意粉", type: "魚", country: "西", icon: "🍝" },
+            { name: "日式炸多春魚", type: "魚", country: "日", icon: "🐟" }
         ];
 
-        let mode = 'type'; // 'type' 或 'country'
         let selectedDishes = [];
-
-        function setFilterMode(m) {
-            mode = m;
-            document.getElementById('btn-type').className = `flex-1 py-2 rounded-xl text-sm font-bold ${mode === 'type' ? 'bg-orange-200' : 'bg-white border'}`;
-            document.getElementById('btn-country').className = `flex-1 py-2 rounded-xl text-sm font-bold ${mode === 'country' ? 'bg-orange-200' : 'bg-white border'}`;
-            renderTags();
-            renderMenu('全部');
-        }
-
-        function renderTags() {
-            const tags = mode === 'type' ? ['全部', '雞', '豬', '魚'] : ['全部', '中', '泰', '韓', '西', '日'];
-            const container = document.getElementById('filterTags');
-            container.innerHTML = tags.map(t => `<button onclick="renderMenu('${t}')" class="bg-white border px-4 py-2 rounded-full text-sm hover:bg-orange-50">${t}</button>`).join('');
-        }
 
         function renderMenu(filter) {
             const list = document.getElementById('menuList');
             list.innerHTML = '';
-            const filtered = (filter === '全部') ? dishes : dishes.filter(d => d[mode] === filter);
+            
+            // 篩選邏輯：如果選'全部'則全顯示，否則檢查類型或國家是否匹配
+            const filtered = (filter === '全部') ? dishes : dishes.filter(d => d.type === filter || d.country === filter);
             
             filtered.forEach(d => {
                 const isSelected = selectedDishes.includes(d.name);
@@ -76,7 +66,7 @@
                             <span class="text-2xl">${d.icon}</span>
                             <div>
                                 <div class="font-bold text-gray-800">${d.name}</div>
-                                <div class="text-xs text-gray-400">${d.type} • ${d.country}</div>
+                                <div class="text-xs text-gray-400">${d.type}系 • ${d.country}式</div>
                             </div>
                         </div>
                     </div>
@@ -89,7 +79,6 @@
             if (index > -1) {
                 selectedDishes.splice(index, 1);
                 el.classList.remove('active-card');
-                el.classList.add('bg-white');
             } else {
                 selectedDishes.push(name);
                 el.classList.add('active-card');
@@ -105,7 +94,7 @@
         }
 
         // 初始化
-        setFilterMode('type');
+        renderMenu('全部');
     </script>
 </body>
 </html>
