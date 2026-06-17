@@ -6,6 +6,18 @@
     <title>🏠 今晚點餐</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+
+
+        #date {
+    display: block;
+    width: 100%;
+    height: 50px; /* 增加高度確保可點擊 */
+    padding: 10px;
+    border: 1px solid #d1d5db !important; /* 加個邊框 */
+    border-radius: 12px;
+    background-color: white !important;
+    color: #374151;
+}
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
         .card { transition: all 0.2s; border: 1px solid #efe8e1; }
@@ -19,7 +31,7 @@
     </header>
 
     <div class="max-w-md mx-auto px-4">
-        <input type="date" id="date" class="w-full p-4 mb-6 rounded-2xl border-none shadow-sm bg-white text-gray-700">
+        <input type="date" id="date" class="mb-6">
 
         <div class="flex flex-wrap gap-2 mb-6">
             <button onclick="showItems('雞🐥')" class="px-4 py-2 bg-white rounded-full border shadow-sm">雞🐥</button>
