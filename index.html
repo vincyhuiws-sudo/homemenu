@@ -8,21 +8,34 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
-        .card { transition: all 0.2s; border: 1px solid #efe8e1; }
-        .active-card { background-color: #fb923c !important; color: white !important; border-color: #ea580c !important; }
         
-        /* 2. 修正日期輸入框在手機上的外觀 */
+        /* 提升基礎卡片的層次感，加入輕微位移過渡與淡陰影 */
+        .card { 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 1px solid #efe8e1; 
+            box-shadow: 0 4px 15px rgba(165, 120, 80, 0.05); /* 帶有溫暖色調的微陰影 */
+        }
+        
+        /* 當點擊選取時，卡片向下壓、陰影內斂，並變成主題橙色 */
+        .active-card { 
+            background-color: #fb923c !important; 
+            color: white !important; 
+            border-color: #ea580c !important;
+            box-shadow: 0 2px 6px rgba(234, 88, 12, 0.2) !important;
+            transform: translateY(1px);
+        }
+        
         #date {
             display: block;
-            width: 50%;
-            height: 35px;
-            padding: 8px;
-            border: 1.5px solid #fb923c !important; /* 橙色邊框 */
+            width: 100%;
+            height: 45px;
+            padding: 8px 12px;
+            border: 1.5px solid #fb923c !important; 
             cursor: pointer;
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: white !important;
             color: #374151;
-            font-size: 22px; /* 避免 iOS 放大畫面 */
+            font-size: 16px; 
         }
     </style>
 </head>
@@ -34,32 +47,32 @@
 
     <div class="max-w-md mx-auto px-4">
         <label for="date" class="block text-sm font-bold text-orange-900 mb-2">Order邊日啊：</label>
-        <input type="date" id="date" class="w-full mb-6">
+        <input type="date" id="date" class="mb-6">
 
         <div class="flex flex-wrap gap-2 mb-6">
-            <button onclick="showItems('🐥')" class="px-4 py-2 bg-white rounded-full border shadow-sm">🐥</button>
-            <button onclick="showItems('🐮')" class="px-4 py-2 bg-white rounded-full border shadow-sm">🐮</button>
-            <button onclick="showItems('🐷')" class="px-4 py-2 bg-white rounded-full border shadow-sm">🐷</button>
-            <button onclick="showItems('🦞')" class="px-4 py-2 bg-white rounded-full border shadow-sm">🦞</button>
-            <button onclick="showItems('🥒🥚🫘')" class="px-4 py-2 bg-white rounded-full border shadow-sm">🥒🥚🫘</button>
-            <button onclick="showItems('主食😋')" class="px-4 py-2 bg-white rounded-full border shadow-sm">主食😋</button>            
-            <button onclick="showItems('國家⛳')" class="px-4 py-2 bg-white rounded-full border shadow-sm">國家⛳</button>
-            <button onclick="showItems('叫外賣🚲')" class="px-4 py-2 bg-white rounded-full border shadow-sm">叫外賣🚲</button>
+            <button onclick="showItems('🐥')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">🐥 雞</button>
+            <button onclick="showItems('🐮')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">🐮 牛</button>
+            <button onclick="showItems('🐷')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">🐷 豬</button>
+            <button onclick="showItems('🦞')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">🦞 海鮮</button>
+            <button onclick="showItems('🥒🥚🫘')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">🥒 菜蛋</button>
+            <button onclick="showItems('主食😋')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">主食😋</button>            
+            <button onclick="showItems('國家⛳')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">國家⛳</button>
+            <button onclick="showItems('叫外賣🚲')" class="px-4 py-2 bg-white rounded-full border border-orange-100 shadow-sm text-sm active:scale-95 transition-transform">叫外賣🚲</button>
         </div>
 
-        <div id="itemList" class="grid grid-cols-1 gap-3"></div>
+        <div id="itemList" class="grid grid-cols-1 gap-4"></div>
     </div>
 
-    <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.1)] flex justify-between items-center z-50">
-        <div id="cartCount" class="text-orange-900 font-bold" onclick="showCartModal()">已選 0 道 (🛒按此修改)</div>
-        <button onclick="submitOrder()" class="bg-orange-500 text-white px-6 py-3 rounded-full font-bold shadow-lg">發送 WhatsApp</button>
+    <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_20px_rgba(165,120,80,0.08)] flex justify-between items-center z-50">
+        <div id="cartCount" class="text-orange-900 font-bold cursor-pointer" onclick="showCartModal()">已選 0 道 (🛒按此修改)</div>
+        <button onclick="submitOrder()" class="bg-orange-500 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-orange-500/30 active:scale-95 transition-transform">發送 WhatsApp</button>
     </div>
 
-    <div id="cartModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
-        <div class="bg-white w-full max-w-md p-6 rounded-t-3xl max-h-[80vh] overflow-y-auto">
+    <div id="cartModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-end justify-center backdrop-blur-xs">
+        <div class="bg-white w-full max-w-md p-6 rounded-t-3xl max-h-[80vh] overflow-y-auto shadow-2xl">
             <h2 class="text-xl font-bold mb-4 text-orange-900">已選菜單</h2>
             <div id="cartList" class="space-y-2 mb-6"></div>
-            <button onclick="closeCart()" class="w-full py-3 bg-gray-200 rounded-full font-bold">關閉並繼續點餐</button>
+            <button onclick="closeCart()" class="w-full py-3 bg-gray-100 text-gray-700 rounded-full font-bold active:bg-gray-200">關閉並繼續點餐</button>
         </div>
     </div>
 
@@ -72,42 +85,57 @@
             '🥒🥚🫘': ['蒸水蛋','番茄炒蛋','老少平安','玉子燒','茶碗蒸','墨魚滑蒸豆腐','芽菜'],
             '主食😋': ['水餃','雲吞', '炒粒粒','肉醬意粉','香蒜意粉', '蟹肉意粉', '湯麵'],
             '國家⛳': ['日本🇯🇵', '韓國🇰🇷','泰國🇹🇭','意大利🇮🇹', '西班牙🇪🇸','挪威🇳🇴'],
-            '叫外賣🚲': ['🍣 壽司', '🍕 披薩', '海南雞🐥', '手撕雞🐥', '韓國菜']
+            '叫外賣🚲': ['🍣 壽司', '🍕 批薩', '海南雞🐥', '手撕雞🐥', '韓國菜']
         };
 
         let selectedDishes = [];
 
+        // 修改此處：重構菜單卡片外觀，仿照高級酒單的 Layer 結構（標題、副標題、左右佈局與精緻加減號）
         function showItems(cat) {
             const container = document.getElementById('itemList');
-            container.innerHTML = data[cat].map(item => `
-                <div class="card p-6 bg-white rounded-2xl flex justify-between items-center cursor-pointer ${selectedDishes.includes(item) ? 'active-card' : ''}" 
-                     onclick="toggleDish('${item}', this)">
-                    <span class="text-lg font-bold">${item}</span>
-                    <span class="text-sm opacity-70">${selectedDishes.includes(item) ? '✓ 已選' : '🛒'}</span>
-                </div>
-            `).join('');
+            container.innerHTML = data[cat].map(item => {
+                const isSelected = selectedDishes.includes(item);
+                return `
+                    <div class="card p-5 bg-white rounded-2xl flex justify-between items-center cursor-pointer ${isSelected ? 'active-card' : ''}" 
+                         onclick="toggleDish('${item}', this)">
+                        
+                        <div class="flex flex-col gap-0.5">
+                            <span class="text-lg font-bold tracking-wide">${item}</span>
+                            <span class="text-xs opacity-60 ${isSelected ? 'text-orange-100' : 'text-gray-500'}">精選推薦配菜</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            ${isSelected ? 
+                                `<div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/40">✓ 已選</div>` : 
+                                `<div class="bg-orange-50 border border-orange-100 text-orange-600 font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-xs">＋</div>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function toggleDish(item, el) {
             const idx = selectedDishes.indexOf(item);
             if (idx > -1) {
                 selectedDishes.splice(idx, 1);
-                el.classList.remove('active-card');
-                el.querySelector('span:last-child').innerText = '🛒';
             } else {
                 selectedDishes.push(item);
-                el.classList.add('active-card');
-                el.querySelector('span:last-child').innerText = '✓ 已選';
             }
+            
+            // 重新渲染該分類，以確保卡片內部的左右 Layer 元件外觀同步更新
+            const currentCat = Object.keys(data).find(cat => data[cat].includes(item));
+            if (currentCat) showItems(currentCat);
+            
             document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道 (🛒按此修改)`;
         }
 
         function showCartModal() {
             const list = document.getElementById('cartList');
             list.innerHTML = selectedDishes.map(item => `
-                <div class="flex justify-between items-center p-3 bg-orange-50 rounded-xl">
-                    <span>${item}</span>
-                    <button onclick="removeDish('${item}')" class="text-red-500 font-bold px-2">X</button>
+                <div class="flex justify-between items-center p-3 bg-orange-50/60 border border-orange-100 rounded-xl shadow-xs">
+                    <span class="font-medium text-orange-950">${item}</span>
+                    <button onclick="removeDish('${item}')" class="text-red-400 hover:text-red-600 font-bold px-2 text-lg">×</button>
                 </div>
             `).join('');
             document.getElementById('cartModal').classList.remove('hidden');
@@ -126,10 +154,10 @@
         function submitOrder() {
             const date = document.getElementById('date').value;
             if(!date || selectedDishes.length === 0) return alert("請揀日子同菜式！");
-            window.location.href = `https://wa.me/852你的電話?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
+            window.location.href = `https://wa.me/85263378993?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
         }
 
-        // 4. 網頁載入時，自動將日期填入為「今天」
+        // 初始化填入今天日期
         document.getElementById('date').valueAsDate = new Date();
     </script>
 </body>
