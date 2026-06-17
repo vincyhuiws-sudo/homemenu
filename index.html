@@ -154,7 +154,7 @@
         function submitOrder() {
             const date = document.getElementById('date').value;
             if(!date || selectedDishes.length === 0) return alert("請揀日子同菜式！");
-            window.location.href = `https://wa.me/85263378993?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
+            window.location.href = `https://wa.me/852你的電話?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
         }
 
         // 初始化填入今天日期
