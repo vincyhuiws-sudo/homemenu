@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>🏠 我們的溫馨晚餐</title>
+    <title>🏠 今晚吃什麼？</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
@@ -14,20 +14,28 @@
 <body class="pb-28">
 
     <header class="text-center py-6">
-        <h1 class="text-2xl text-orange-900 font-bold">🏠 今晚吃什麼？</h1>
+        <h1 class="text-2xl text-orange-900 font-bold">🏠 親愛的，今晚點餐？</h1>
     </header>
 
     <div class="max-w-lg mx-auto px-4">
         <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-6 bg-white text-gray-700">
 
-        <div id="filterTags" class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button onclick="renderMenu('全部')" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold">全部</button>
-            <button onclick="renderMenu('雞')" class="bg-white border px-4 py-2 rounded-full text-sm">雞肉</button>
-            <button onclick="renderMenu('豬')" class="bg-white border px-4 py-2 rounded-full text-sm">豬肉</button>
-            <button onclick="renderMenu('泰')" class="bg-white border px-4 py-2 rounded-full text-sm">泰式</button>
-            <button onclick="renderMenu('韓')" class="bg-white border px-4 py-2 rounded-full text-sm">韓式</button>
-            <button onclick="renderMenu('西')" class="bg-white border px-4 py-2 rounded-full text-sm">西式</button>
-            <button onclick="renderMenu('日')" class="bg-white border px-4 py-2 rounded-full text-sm">日式</button>
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="handleMainCategory('全部')" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">全部</button>
+            <button onclick="handleMainCategory('雞')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">雞</button>
+            <button onclick="handleMainCategory('牛')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">牛</button>
+            <button onclick="handleMainCategory('豬')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">豬</button>
+            <button onclick="handleMainCategory('海鮮')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">海鮮</button>
+            <button onclick="handleMainCategory('羊')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">羊</button>
+            <button onclick="handleMainCategory('國家')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap text-orange-700 font-bold">國家 🌍</button>
+        </div>
+
+        <div id="countryBar" class="hidden flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-orange-100">
+            <button onclick="renderMenuByCountry('日本')" class="bg-stone-100 px-3 py-1 rounded-lg text-xs">日本</button>
+            <button onclick="renderMenuByCountry('泰國')" class="bg-stone-100 px-3 py-1 rounded-lg text-xs">泰國</button>
+            <button onclick="renderMenuByCountry('韓國')" class="bg-stone-100 px-3 py-1 rounded-lg text-xs">韓國</button>
+            <button onclick="renderMenuByCountry('意大利')" class="bg-stone-100 px-3 py-1 rounded-lg text-xs">意大利</button>
+            <button onclick="renderMenuByCountry('西班牙')" class="bg-stone-100 px-3 py-1 rounded-lg text-xs">西班牙</button>
         </div>
 
         <div id="menuList" class="space-y-3"></div>
@@ -35,65 +43,65 @@
 
     <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex justify-between items-center z-50">
         <div id="cartCount" class="text-gray-700 font-bold">已選 0 道菜</div>
-        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg">傳送 WhatsApp</button>
+        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-orange-500">確認預訂</button>
     </div>
 
     <script>
         const dishes = [
-            { name: "冬瓜炆排骨", type: "豬", country: "中", icon: "🥘" },
-            { name: "老少平安", type: "豬", country: "中", icon: "🥣" },
-            { name: "泰式咖喱雞", type: "雞", country: "泰", icon: "🍛" },
-            { name: "韓式泡菜炒肉", type: "豬", country: "韓", icon: "🥓" },
-            { name: "焗三文魚", type: "魚", country: "西", icon: "🐟" },
-            { name: "大蝦意粉", type: "魚", country: "西", icon: "🍝" },
-            { name: "日式炸多春魚", type: "魚", country: "日", icon: "🐟" }
+            { name: "冬瓜炆排骨", category: "豬", country: "中" },
+            { name: "蒜香炸雞", category: "雞", country: "中" },
+            { name: "日式照燒牛", category: "牛", country: "日本" },
+            { name: "泰式冬陰功湯", category: "海鮮", country: "泰國" },
+            { name: "意式番茄肉醬意粉", category: "豬", country: "意大利" },
+            { name: "西班牙烤海鮮", category: "海鮮", country: "西班牙" }
         ];
 
         let selectedDishes = [];
 
-        function renderMenu(filter) {
-            const list = document.getElementById('menuList');
-            list.innerHTML = '';
-            
-            // 篩選邏輯：如果選'全部'則全顯示，否則檢查類型或國家是否匹配
-            const filtered = (filter === '全部') ? dishes : dishes.filter(d => d.type === filter || d.country === filter);
-            
-            filtered.forEach(d => {
+        function handleMainCategory(cat) {
+            const countryBar = document.getElementById('countryBar');
+            countryBar.style.display = (cat === '國家') ? 'flex' : 'none';
+            if (cat !== '國家') renderMenu(cat);
+        }
+
+        function renderMenu(cat) {
+            const filtered = (cat === '全部') ? dishes : dishes.filter(d => d.category === cat);
+            displayDishes(filtered);
+        }
+
+        function renderMenuByCountry(country) {
+            const filtered = dishes.filter(d => d.country === country);
+            displayDishes(filtered);
+        }
+
+        function displayDishes(list) {
+            const container = document.getElementById('menuList');
+            container.innerHTML = list.map(d => {
                 const isSelected = selectedDishes.includes(d.name);
-                list.innerHTML += `
+                return `
                     <div class="card p-4 rounded-2xl flex items-center justify-between cursor-pointer ${isSelected ? 'active-card' : 'bg-white'}" onclick="toggleDish('${d.name}', this)">
-                        <div class="flex items-center gap-4">
-                            <span class="text-2xl">${d.icon}</span>
-                            <div>
-                                <div class="font-bold text-gray-800">${d.name}</div>
-                                <div class="text-xs text-gray-400">${d.type}系 • ${d.country}式</div>
-                            </div>
+                        <div>
+                            <div class="font-bold text-gray-800">${d.name}</div>
+                            <div class="text-xs text-gray-400">${d.country}風味</div>
                         </div>
                     </div>
                 `;
-            });
+            }).join('');
         }
 
         function toggleDish(name, el) {
             const index = selectedDishes.indexOf(name);
-            if (index > -1) {
-                selectedDishes.splice(index, 1);
-                el.classList.remove('active-card');
-            } else {
-                selectedDishes.push(name);
-                el.classList.add('active-card');
-            }
+            if (index > -1) { selectedDishes.splice(index, 1); el.classList.remove('active-card'); }
+            else { selectedDishes.push(name); el.classList.add('active-card'); }
             document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道菜`;
         }
 
         function submitOrder() {
             const date = document.getElementById('date').value;
-            if(!date || selectedDishes.length === 0) return alert("請記得選日期同想食嘅菜式呀！");
-            const msg = `🏠 親愛的，我預訂了 ${date} 的晚餐：\n\n${selectedDishes.join('\n')}\n\n期待這頓飯！❤️`;
-            window.location.href = `https://wa.me/85263378993?text=${encodeURIComponent(msg)}`;
+            if(!date || selectedDishes.length === 0) return alert("請先選日期同菜式喔！");
+            window.location.href = `https://wa.me/852你的電話?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
         }
-
-        // 初始化
+        
         renderMenu('全部');
     </script>
 </body>
