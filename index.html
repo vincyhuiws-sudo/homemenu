@@ -2,62 +2,98 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>🏠 晚餐點餐</title>
+    <title>🏠 我們的溫馨晚餐</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
+        .card { transition: all 0.3s; border: 1px solid #efe8e1; }
+        .active-card { border-color: #dcb8a0; background-color: #fffaf7; border-width: 2px; }
     </style>
 </head>
 <body class="pb-28">
-    <div class="max-w-lg mx-auto p-4">
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button onclick="showAll()" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold">全部</button>
-            <button onclick="filterType('雞')" class="bg-white border px-4 py-2 rounded-full text-sm">雞</button>
-            <button onclick="filterType('牛')" class="bg-white border px-4 py-2 rounded-full text-sm">牛</button>
-            <button onclick="filterType('豬')" class="bg-white border px-4 py-2 rounded-full text-sm">豬</button>
-            <button onclick="showCountries()" class="bg-white border px-4 py-2 rounded-full text-sm text-orange-700 font-bold">國家 🌍</button>
+
+    <header class="text-center py-6">
+        <h1 class="text-2xl text-orange-900 font-bold">🏠 親愛的，今晚點餐？</h1>
+    </header>
+
+    <div class="max-w-lg mx-auto px-4">
+        <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-6 bg-white text-gray-700">
+
+        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+            <button onclick="filterContent('all', null)" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">全部</button>
+            <button onclick="filterContent('category', '雞')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">雞</button>
+            <button onclick="filterContent('category', '牛')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">牛</button>
+            <button onclick="filterContent('category', '豬')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">豬</button>
+            <button onclick="filterContent('category', '海鮮')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">海鮮</button>
+            <button onclick="filterContent('category', '羊')" class="bg-white border px-4 py-2 rounded-full text-sm whitespace-nowrap">羊</button>
+            <button class="bg-orange-50 border border-orange-200 px-4 py-2 rounded-full text-sm text-orange-800 font-bold whitespace-nowrap">國家 🌍</button>
         </div>
 
-        <div id="menuList" class="space-y-6"></div>
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-orange-100">
+            <button onclick="filterContent('country', '日本')" class="bg-white border px-3 py-1 rounded-lg text-xs">日本</button>
+            <button onclick="filterContent('country', '泰國')" class="bg-white border px-3 py-1 rounded-lg text-xs">泰國</button>
+            <button onclick="filterContent('country', '韓國')" class="bg-white border px-3 py-1 rounded-lg text-xs">韓國</button>
+            <button onclick="filterContent('country', '意大利')" class="bg-white border px-3 py-1 rounded-lg text-xs">意大利</button>
+            <button onclick="filterContent('country', '西班牙')" class="bg-white border px-3 py-1 rounded-lg text-xs">西班牙</button>
+        </div>
+
+        <div id="menuList" class="space-y-3"></div>
+    </div>
+
+    <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex justify-between items-center z-50">
+        <div id="cartCount" class="text-gray-700 font-bold">已選 0 道菜</div>
+        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-orange-500">確認預訂</button>
     </div>
 
     <script>
         const dishes = [
-            { name: "日式照燒牛", type: "牛", country: "日本" },
-            { name: "泰式冬陰功", type: "海鮮", country: "泰國" },
-            { name: "韓式泡菜豬", type: "豬", country: "韓國" },
-            { name: "意式肉醬麵", type: "豬", country: "意大利" },
-            { name: "西班牙海鮮飯", type: "海鮮", country: "西班牙" }
+            { name: "冬瓜炆排骨", category: "豬", country: "中" },
+            { name: "蒜香炸雞", category: "雞", country: "中" },
+            { name: "日式照燒牛", category: "牛", country: "日本" },
+            { name: "泰式冬陰功湯", category: "海鮮", country: "泰國" },
+            { name: "意式番茄肉醬意粉", category: "豬", country: "意大利" },
+            { name: "西班牙烤海鮮", category: "海鮮", country: "西班牙" }
         ];
 
-        // 1. 一般分類顯示
-        function filterType(type) {
-            const list = document.getElementById('menuList');
-            const filtered = dishes.filter(d => d.type === type);
-            list.innerHTML = filtered.map(d => `<div class="bg-white p-4 rounded-2xl border">${d.name}</div>`).join('');
+        let selectedDishes = [];
+
+        // 統一篩選邏輯
+        function filterContent(type, value) {
+            const filtered = (type === 'all') ? dishes : dishes.filter(d => d[type] === value);
+            displayDishes(filtered);
         }
 
-        // 2. 國家分組顯示 (這是你要求的重點)
-        function showCountries() {
-            const list = document.getElementById('menuList');
-            const countries = [...new Set(dishes.map(d => d.country))];
-            
-            list.innerHTML = countries.map(country => `
-                <div>
-                    <h2 class="text-orange-800 font-bold text-lg mb-2">${country}</h2>
-                    <div class="space-y-2">
-                        ${dishes.filter(d => d.country === country).map(d => 
-                            `<div class="bg-white p-4 rounded-2xl border cursor-pointer hover:border-orange-300 transition" onclick="this.classList.toggle('bg-orange-50')">${d.name}</div>`
-                        ).join('')}
+        function displayDishes(list) {
+            const container = document.getElementById('menuList');
+            container.innerHTML = list.map(d => {
+                const isSelected = selectedDishes.includes(d.name);
+                return `
+                    <div class="card p-4 rounded-2xl flex items-center justify-between cursor-pointer ${isSelected ? 'active-card' : 'bg-white'}" onclick="toggleDish('${d.name}', this)">
+                        <div>
+                            <div class="font-bold text-gray-800">${d.name}</div>
+                            <div class="text-xs text-gray-400">${d.country}風味</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        function showAll() { /* 顯示全部邏輯 */ }
+        function toggleDish(name, el) {
+            const index = selectedDishes.indexOf(name);
+            if (index > -1) { selectedDishes.splice(index, 1); el.classList.remove('active-card'); }
+            else { selectedDishes.push(name); el.classList.add('active-card'); }
+            document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道菜`;
+        }
+
+        function submitOrder() {
+            const date = document.getElementById('date').value;
+            if(!date || selectedDishes.length === 0) return alert("請先選日期同菜式喔！");
+            const phone = "852你的電話"; // 請改為真實號碼
+            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(`晚餐預訂 (${date}):\n${selectedDishes.join('\n')}`)}`;
+        }
         
-        showAll();
+        filterContent('all');
     </script>
 </body>
 </html>
