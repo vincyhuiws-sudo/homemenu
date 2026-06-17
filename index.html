@@ -2,96 +2,85 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>🏠 晚餐點餐</title>
+    <title>🏠 我們的溫馨晚餐</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Serif TC', serif; background-color: #fdfaf6; }
-        .card { transition: all 0.3s; border: 1px solid #efe8e1; }
-        .active-card { border-color: #dcb8a0; background-color: #fffaf7; border-width: 2px; }
+        .card { transition: all 0.3s; }
+        .active-card { background-color: #fffaf7 !important; border-color: #dcb8a0 !important; border-width: 2px; }
     </style>
 </head>
 <body class="pb-28">
 
-    <header class="text-center py-6">
-        <h1 class="text-2xl text-orange-900 font-bold">🏠 親愛的，今晚點餐？</h1>
+    <header class="text-center py-8">
+        <h1 class="text-3xl text-orange-900 font-bold">🏠 今晚點餐</h1>
     </header>
 
     <div class="max-w-lg mx-auto px-4">
-        <input type="date" id="date" class="w-full p-3 rounded-2xl border-none shadow-sm mb-6 bg-white text-gray-700">
+        <input type="date" id="date" class="w-full p-4 mb-6 rounded-2xl border-none shadow-sm bg-white text-gray-700">
 
-        <!-- 分類區 -->
-        <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-            <button onclick="renderAll()" class="bg-orange-200 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap">全部</button>
-            <button onclick="filterBy('category', '雞')" class="bg-white border px-4 py-2 rounded-full text-sm">雞</button>
-            <button onclick="filterBy('category', '牛')" class="bg-white border px-4 py-2 rounded-full text-sm">牛</button>
-            <button onclick="filterBy('category', '豬')" class="bg-white border px-4 py-2 rounded-full text-sm">豬</button>
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <button onclick="showSecondLayer('雞')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">雞</button>
+            <button onclick="showSecondLayer('牛')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">牛</button>
+            <button onclick="showSecondLayer('豬')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">豬</button>
+            <button onclick="showSecondLayer('海鮮')" class="px-5 py-2 bg-white rounded-full border shadow-sm hover:border-orange-200">海鮮</button>
+            <button onclick="showSecondLayer('國家')" class="px-5 py-2 bg-white rounded-full border shadow-sm text-orange-800 font-bold">國家</button>
         </div>
 
-        <!-- 國家選項區 -->
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-orange-100">
-            <button onclick="filterBy('country', '日本')" class="bg-white border px-3 py-1 rounded-lg text-xs">日本</button>
-            <button onclick="filterBy('country', '韓國')" class="bg-white border px-3 py-1 rounded-lg text-xs">韓國</button>
-            <button onclick="filterBy('country', '泰國')" class="bg-white border px-3 py-1 rounded-lg text-xs">泰國</button>
-            <button onclick="filterBy('country', '意大利')" class="bg-white border px-3 py-1 rounded-lg text-xs">意大利</button>
-            <button onclick="filterBy('country', '西班牙')" class="bg-white border px-3 py-1 rounded-lg text-xs">西班牙</button>
-        </div>
-
-        <div id="menuList" class="space-y-3"></div>
+        <div id="secondLayer" class="grid grid-cols-2 gap-3"></div>
     </div>
 
-    <!-- 底部欄 -->
     <div class="fixed bottom-0 w-full bg-white border-t p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] flex justify-between items-center z-50">
-        <div id="cartCount" class="text-gray-700 font-bold">已選 0 道菜</div>
-        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-orange-500">確認預訂</button>
+        <div id="cartCount" class="text-gray-700 font-bold">已選 0 道</div>
+        <button onclick="submitOrder()" class="bg-orange-400 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-orange-500">發送 WhatsApp</button>
     </div>
 
     <script>
-        // 這是你要的資料結構，直接將國家與菜名對應
-        const dishes = [
-            { name: "日式照燒牛", category: "牛", country: "日本" },
-            { name: "韓式泡菜豬", category: "豬", country: "韓國" },
-            { name: "泰式冬陰功湯", category: "海鮮", country: "泰國" },
-            { name: "意式肉醬意粉", category: "豬", country: "意大利" },
-            { name: "西班牙海鮮飯", category: "海鮮", country: "西班牙" },
-            { name: "蒜香炸雞", category: "雞", country: "日本" } // 舉例
-        ];
+        const data = {
+            '雞': ['照燒雞'],
+            '牛': ['炒牛肉'],
+            '豬': ['黑毛豬'],
+            '海鮮': ['焗三文魚'],
+            '國家': ['日本', '韓國', '泰國', '意大利', '西班牙']
+        };
 
         let selectedDishes = [];
 
-        function filterBy(key, value) {
-            const filtered = dishes.filter(d => d[key] === value);
-            displayDishes(filtered);
+        function showSecondLayer(category) {
+            const container = document.getElementById('secondLayer');
+            container.innerHTML = data[category].map(item => {
+                const isSelected = selectedDishes.includes(item);
+                return `
+                    <div class="card p-5 bg-white rounded-2xl border text-center cursor-pointer ${isSelected ? 'active-card' : ''}" 
+                         onclick="toggleDish('${item}', this)">
+                        ${item}
+                    </div>
+                `;
+            }).join('');
         }
 
-        function renderAll() {
-            displayDishes(dishes);
-        }
-
-        function displayDishes(list) {
-            const container = document.getElementById('menuList');
-            container.innerHTML = list.map(d => `
-                <div class="card p-4 rounded-2xl flex items-center justify-between cursor-pointer ${selectedDishes.includes(d.name) ? 'active-card' : 'bg-white'}" onclick="toggleDish('${d.name}', this)">
-                    <div class="font-bold text-gray-800">${d.name}</div>
-                    <div class="text-xs text-orange-400">${d.country}</div>
-                </div>
-            `).join('');
-        }
-
-        function toggleDish(name, el) {
-            const index = selectedDishes.indexOf(name);
-            if (index > -1) { selectedDishes.splice(index, 1); el.classList.remove('active-card'); }
-            else { selectedDishes.push(name); el.classList.add('active-card'); }
-            document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道菜`;
+        function toggleDish(item, el) {
+            const index = selectedDishes.indexOf(item);
+            if (index > -1) {
+                selectedDishes.splice(index, 1);
+                el.classList.remove('active-card');
+            } else {
+                selectedDishes.push(item);
+                el.classList.add('active-card');
+            }
+            document.getElementById('cartCount').innerText = `已選 ${selectedDishes.length} 道`;
         }
 
         function submitOrder() {
             const date = document.getElementById('date').value;
-            if(!date || selectedDishes.length === 0) return alert("請選日子同菜式！");
-            window.location.href = `https://wa.me/852你的電話?text=${encodeURIComponent(`預訂晚餐 (${date}):\n${selectedDishes.join('\n')}`)}`;
+            if(!date || selectedDishes.length === 0) return alert("請揀日子同菜式！");
+            
+            // 請替換你的真實電話 (格式: 852XXXXXXXX)
+            const phone = "852你的電話"; 
+            const msg = `🏠 今晚晚餐 (${date}):\n${selectedDishes.join('\n')}`;
+            window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
         }
-
-        renderAll();
     </script>
 </body>
 </html>
